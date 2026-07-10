@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Renderer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #000814;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+    #background {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      display: none;
+    }
+    #maskContainer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 1;
+      overflow: hidden;
+    }
+    #scrollContainer {
+      width: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: block; /* Guaranteed vertical flow, no overlapping */
+      text-align: center;
+      transform: translateY(100vh); /* Initial position */
+    }
+    .name-item {
+      width: 80%; /* Limit width to prevent text from touching screen edges */
+      margin: 0 auto; /* Center the name block horizontally */
+      text-align: center;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      white-space: normal;
+      word-break: break-word;
+      display: block; /* Normal block flow */
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <img id="background" alt="Background">
+  <div id="maskContainer">
+    <div id="scrollContainer"></div>
+  </div>
+
+  <script>
+    // ── initPage ─────────────────────────────────────────────
+    // Called once by main.js via executeJavaScript after page loads.
+    // Sets up background, font, names list.
+    window.initPage = (config) => {
+      window.CONFIG = config;
+
+      // 1. Background image
+      const bgImg = document.getElementById('background');
+      if (config.bgPath) {
+        bgImg.src = config.bgPath;
+        bgImg.style.display = 'block';
+      }
+
+      // 2. Resolve font families and styles securely without quotes crash
+      const rawFontFamily = config.fontFamily || "'Optima Nova LT Pro', sans-serif";
+      const cleanFontName = rawFontFamily.replace(/['"]/g, '').split(',')[0].trim();
+
+      // Dynamic Google Fonts loading for standard Web fonts
+      const googleFonts = ['Bebas Neue', 'Cinzel', 'Montserrat', 'Playfair Display', 'Outfit', 'Inter', 'Roboto'];
+      const isGoogleFont = googleFonts.some(f => cleanFontName.toLowerCase().includes(f.toLowerCase()));
+      
+      if (isGoogleFont) {
+        console.log(`[Renderer] Loading Google Font: ${cleanFontName}`);
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        const fontNameForUrl = cleanFontName.replace(/ /g, '+');
+        link.href = `https://fonts.googleapis.com/css2?family=${fontNameForUrl}:wght@400;700&display=swap`;
+        document.head.appendChild(link);
+      }
+
+      let fontFaceCSS = '';
+      if (config.fontPath && cleanFontName.includes('Optima Nova')) {
+        console.log(`[Renderer] Loading Local Corporate Font: ${cleanFontName}`);
+        fontFaceCSS = `
+          @font-face {
+            font-family: 'Optima Nova LT Pro';
+            src: url('${config.fontPath}') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+          }
+        `;
+      }
+
+      const maskTop    = config.maskTopPercent    !== undefined ? config.maskTopPercent    : 20;
+      const maskBottom = config.maskBottomPercent !== undefined ? config.maskBottomPercent : 80;
+      const maskCSS = `
+        linear-gradient(to bottom,
+          transparent 0%,
+          transparent ${maskTop}%,
+          black ${Math.min(maskTop + 5, maskBottom)}%,
+          black ${Math.max(maskBottom - 5, maskTop)}%,
+          transparent ${maskBottom}%,
+          transparent 100%)
+      `;
+
+      const style = document.createElement('style');
+      style.textContent = `
+        ${fontFaceCSS}
+        #maskContainer {
+          mask-image: ${maskCSS};
+          -webkit-mask-image: ${maskCSS};
+        }
+        .name-item {
+          font-family: ${rawFontFamily};
+          font-size: ${config.fontSize}px;
+          color: ${config.textColor};
+          font-weight: ${config.fontWeight};
+          letter-spacing: ${config.letterSpacing}px;
+          line-height: 1.25;
+        }
+      `;
+      document.head.appendChild(style);
+
+      // 3. Populate names with dynamic heights matching pre-render heights
+      const scrollContainer = document.getElementById('scrollContainer');
+      scrollContainer.innerHTML = '';
+      const names = config.names || [];
+      
+      names.forEach(name => {
+        const div = document.createElement('div');
+        div.className = 'name-item';
+        div.textContent = name;
+        
+        let multiplier = 1;
+        if (config.wrapNames) {
+          const trName = config.caseMode === 'original' ? name : name.toLocaleUpperCase('tr-TR');
+          if (trName.length > 20) {
+            multiplier = 2;
+          }
+        }
+        
+        // Mathematical centering within blockHeight:
+        // totalHeight = nameHeight * multiplier
+        // textHeight = fontSize * 1.25
+        // verticalPadding = (totalHeight - textHeight) / 2
+        const targetHeight = config.nameHeight * multiplier;
+        const textHeight = config.fontSize * 1.25;
+        const verticalPadding = Math.max(0, (targetHeight - textHeight) / 2);
+        
+        div.style.paddingTop = `${verticalPadding}px`;
+        div.style.paddingBottom = `${verticalPadding}px`;
+        div.style.minHeight = `${targetHeight}px`;
+        
+        scrollContainer.appendChild(div);
+      });
+
+      // Reset scroll container position to start height
+      scrollContainer.style.transform = `translateY(${config.height}px)`;
+    };
+
+    // ── seekToFrame ──────────────────────────────────────────
+    // Sets the scroll container Y offset mathematically based on current frame.
+    window.seekToFrame = (frame) => {
+      const config = window.CONFIG;
+      const scrollContainer = document.getElementById('scrollContainer');
+      const listHeight = scrollContainer.scrollHeight;
+      
+      const fps = config.fps || 60; // Dynamic recording FPS
+      const introFrames = Math.ceil(config.introDuration * fps);
+      const scrollFrames = Math.ceil(config.scrollDuration * fps);
+      
+      let y = config.height; // starting position (fully below screen)
+      
+      if (frame < introFrames) {
+        // Intro phase: stationary at bottom
+        y = config.height;
+      } else if (frame < introFrames + scrollFrames) {
+        // Scrolling phase
+        const progress = (frame - introFrames) / scrollFrames;
+        const totalDistance = config.height + listHeight;
+        y = config.height - progress * totalDistance;
+      } else {
+        // Outro phase: stationary at top (fully off screen)
+        y = -listHeight;
+      }
+      
+      scrollContainer.style.transform = `translateY(${y}px)`;
+    };
+  </script>
+</body>
+</html>

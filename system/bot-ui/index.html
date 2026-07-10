@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gremire PRO - Mezuniyet Video Oluşturucu</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Splash Screen -->
+  <div id="splashScreen" class="splash-screen">
+    <div class="splash-logo-container">
+      <img src="logo.png" alt="Medipol Logo" class="splash-logo">
+      <div class="splash-loader-line"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splashScreen');
+        if (splash) {
+          splash.classList.add('splash-fade-out');
+          setTimeout(() => { splash.remove(); }, 600);
+        }
+      }, 2000);
+    });
+  </script>
+
+  <div class="background-animation"></div>
+
+  <!-- Medipol Top Navigation Bar -->
+  <div class="top-bar">
+    <div class="top-bar-brand">
+      <img src="logo.png" alt="Medipol" class="top-bar-logo">
+      <div class="top-bar-titles">
+        <span class="top-bar-name">Medipol Üniversitesi</span>
+        <span class="top-bar-sub">Mezuniyet Video Oluşturucu</span>
+      </div>
+    </div>
+    <div class="top-bar-right">
+      <span class="version-badge">v2.9 PRO</span>
+      <div class="status-dot-bar" title="Sistem Hazır"></div>
+    </div>
+  </div>
+
+    <div class="layout-grid">
+      <!-- SOL SÜTUN: AYARLAR PANELİ -->
+      <div class="settings-column">
+        <form id="renderForm" class="glass-panel">
+          
+          <!-- Hızlı Klasör ve İsim Tanımları -->
+          <div class="section-title">1. Temel Video ve Dosya Ayarları</div>
+          
+          <div class="form-group">
+            <label for="departmentName">Bölüm / Video Adı</label>
+            <input type="text" id="departmentName" name="departmentName" placeholder="Örn: Eczacılık Fakültesi 1. Tören" required>
+          </div>
+
+          <div class="form-group">
+            <label for="namesList">İsim Listesi veya Konuşma Metni Paragrafları</label>
+            <textarea id="namesList" name="namesList" rows="5" placeholder="Her satıra bir isim veya uzun bir konuşma paragrafı gelecek şekilde yapıştırın (Akış için 'Alta Yaz' seçeneğini aktif edin)..." required>ALİ YILMAZ&#10;AYŞE DEMİR&#10;MEHMET KAYA&#10;FATMA ŞAHİN&#10;MUSTAFA ÇELİK</textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="outputDir">Çıktı Klasörü</label>
+            <div class="input-with-button">
+              <input type="text" id="outputDir" name="outputDir" placeholder="Çıktıların kaydedileceği klasör yolu..." readonly>
+              <button type="button" id="browseFolderBtn" class="sec-btn">Seç...</button>
+            </div>
+          </div>
+
+          <div class="form-group file-upload" id="fileUploadContainer">
+            <label for="background">Şablon Arkaplan Görseli (sablon.jpg)</label>
+            <div class="file-drop-area">
+              <span class="file-msg">Sürükleyip bırakın veya görsel seçin</span>
+              <input type="file" id="background" name="background" accept="image/jpeg, image/png">
+            </div>
+          </div>
+
+          <!-- Format ve Boyut Tanımları -->
+          <div class="section-title">2. Çıktı ve Render Formatı</div>
+
+          <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+            <div class="form-group" style="flex: 1;">
+              <label for="format">Şablon Modu</label>
+              <select id="format" name="format" class="custom-select">
+                <option value="template" selected>Şablonlu (MP4 - Arkaplanlı)</option>
+                <option value="transparent">Şablonsuz (Saydam WEBM - Arkaplansız)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="flex: 1;">
+              <label for="aspectRatio">Video Boyutu (Format)</label>
+              <select id="aspectRatio" name="aspectRatio" class="custom-select">
+                <option value="16:9" selected>Yatay (16:9) - 1920x1080</option>
+                <option value="9:16">Dikey / Reels (9:16) - 1080x1920</option>
+                <option value="4:3">Karemsi (4:3) - 1440x1080</option>
+                <option value="1:1">Kare (1:1) - 1080x1080</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Yazı ve Font Ayarları -->
+          <div class="section-title">3. Kapsamlı Yazı ve Font Ayarları</div>
+
+          <div style="display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-end;">
+            <div class="form-group" style="flex: 2;">
+              <label for="font">Yazı Tipi (Font)</label>
+              <select id="font" name="font" class="custom-select">
+                <option value="'Optima Nova LT Pro', sans-serif" selected>Optima Nova (Kurumsal)</option>
+                <option value="'Bebas Neue', sans-serif">Bebas Neue (Modern)</option>
+                <option value="'Cinzel', serif">Cinzel (Klasik)</option>
+                <option value="'Montserrat', sans-serif">Montserrat (Sade)</option>
+                <option value="'Playfair Display', serif">Playfair Display (Zarif Serif)</option>
+                <option value="'Outfit', sans-serif">Outfit (Minimalist)</option>
+                <option value="'Inter', sans-serif">Inter (Sans-Serif)</option>
+                <option value="'Roboto', sans-serif">Roboto</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="flex: 1;">
+              <label for="textColor">Yazı Rengi</label>
+              <div class="color-picker-container">
+                <input type="color" id="textColor" name="textColor" value="#ffffff">
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+            <div class="form-group" style="flex: 1;">
+              <label for="fontWeight">Yazı Kalınlığı</label>
+              <select id="fontWeight" name="fontWeight" class="custom-select">
+                <option value="normal" selected>Normal</option>
+                <option value="bold">Kalın (Bold)</option>
+              </select>
+            </div>
+            
+            <div class="form-group" style="flex: 1;">
+              <label for="caseMode">Harf Tipi</label>
+              <select id="caseMode" name="caseMode" class="custom-select">
+                <option value="uppercase" selected>Hepsi BÜYÜK Harf</option>
+                <option value="original">Orijinal (Büyük/Küçük)</option>
+              </select>
+            </div>
+            
+            <div class="form-group" style="flex: 1;">
+              <label for="fps">Kare Hızı (FPS)</label>
+              <select id="fps" name="fps" class="custom-select">
+                <option value="60" selected>60 FPS (Akıcı)</option>
+                <option value="30">30 FPS (Standart)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group range-slider">
+            <div class="slider-header">
+              <label for="fontSize">Yazı Boyutu</label>
+              <span id="fontSizeVal">80px</span>
+            </div>
+            <input type="range" id="fontSize" name="fontSize" min="40" max="250" value="80">
+          </div>
+
+          <div class="form-group range-slider">
+            <div class="slider-header">
+              <label for="letterSpacing">Harf Boşluğu</label>
+              <span id="letterSpacingVal">1.5px</span>
+            </div>
+            <input type="range" id="letterSpacing" name="letterSpacing" min="0" max="20" step="0.5" value="1.5">
+          </div>
+
+          <div class="form-group range-slider">
+            <div class="slider-header">
+              <label for="nameHeight">İsimler Arası Mesafe (Satır)</label>
+              <span id="nameHeightVal">160px</span>
+            </div>
+            <input type="range" id="nameHeight" name="nameHeight" min="80" max="400" value="160">
+          </div>
+
+          <div class="form-group range-slider">
+            <div class="slider-header">
+              <label for="speed">Yazı Kayma Hızı (1=yavaş → 15=çok hızlı)</label>
+              <span id="speedVal">3</span>
+            </div>
+            <input type="range" id="speed" name="speed" min="1" max="15" step="0.5" value="3">
+          </div>
+
+          <!-- Akıllı İsim Yönetimi -->
+          <div class="section-title">4. Akıllı Uzun İsim Yönetimi</div>
+          
+          <div class="toggle-group" style="margin-bottom: 1.5rem;">
+            <div class="toggle-item">
+              <div class="toggle-label-group">
+                <span class="toggle-title">Uzun İsimleri Alta Yaz (Wrap)</span>
+                <span class="toggle-desc">Ekrana sığmayan isimleri alt satıra böler</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="wrapNames" name="wrapNames">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item" id="autoShrinkContainer">
+              <div class="toggle-label-group">
+                <span class="toggle-title">Otomatik Küçültme (Auto-Shrink)</span>
+                <span class="toggle-desc">Sığmayan isimlerin font boyutunu otomatik küçültür</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="autoShrink" name="autoShrink" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Hidden inputs for masking percentages (managed by interactive drag & drop) -->
+          <input type="hidden" id="maskTopPercent" name="maskTopPercent" value="20">
+          <input type="hidden" id="maskBottomPercent" name="maskBottomPercent" value="80">
+
+          <button type="submit" id="submitBtn" class="primary-btn">
+            <span class="btn-text">Kuyruğa Ekle ve Render Al</span>
+            <span class="loader" style="display: none;"></span>
+          </button>
+        </form>
+
+        <!-- İşlem Kuyruğu -->
+        <div id="queueContainer" class="glass-panel" style="margin-top: 2rem;">
+          <h3 class="panel-heading">İşlem Kuyruğu</h3>
+          <div id="queueList" class="queue-list">
+            <p class="empty-queue-msg">Şu an kuyrukta işlem yok.</p>
+          </div>
+        </div>
+
+        <div id="logContainer" class="glass-panel logs-panel" style="display: none; margin-top: 2rem;">
+          <div class="log-header">
+            <h3>Terminal Çıktısı</h3>
+            <div style="display: flex; gap: 0.8rem; align-items: center;">
+              <button type="button" id="clearLogsBtn" class="sec-btn" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; border-radius: 8px;">Temizle</button>
+              <span class="status-indicator pulsing"></span>
+            </div>
+          </div>
+          <div id="logs" class="logs-content"></div>
+        </div>
+      </div>
+
+      <!-- SAĞ SÜTUN: CANLI INTERAKTIF ÖNİZLEME PANELDEN SÜRÜKLE BIRAK SINIR HATLARI -->
+      <div class="preview-column">
+        <div class="glass-panel sticky-panel">
+          <h3 class="panel-heading">Canlı Önizleme & Maske Alanı</h3>
+          <p class="panel-sub">Kırmızı ve Mavi çizgileri dikeyde sürükleyerek yazıların ekrana giriş-çıkış (maske) sınırlarını belirleyin.</p>
+          
+          <div class="preview-aspect-container">
+            <!-- Dynamic aspect ratio preview area -->
+            <div id="videoPreview" class="video-preview ratio-16-9">
+              <!-- Real background image element for preview -->
+              <img id="previewBgImage" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; display: none; pointer-events: none;" alt="Arka Plan Önizleme">
+              <!-- Draggable Top Crop Limit Line (Red) -->
+              <div id="dragLineTop" class="drag-line top-line">
+                <span class="line-label top-label">Kaybolma Sınırı (Kırmızı)</span>
+                <div class="drag-handle top-handle"></div>
+              </div>
+
+              <!-- Draggable Bottom Crop Limit Line (Blue) -->
+              <div id="dragLineBottom" class="drag-line bottom-line">
+                <span class="line-label bottom-label">Başlama Sınırı (Mavi)</span>
+                <div class="drag-handle bottom-handle"></div>
+              </div>
+
+              <!-- Draggable Area/Mask Overlay Visual Indicator -->
+              <div id="maskVisual" class="mask-visual-overlay"></div>
+
+              <!-- Live Scrolling List of Names (Preview) -->
+              <div id="previewListContainer" class="preview-list-container">
+                <div id="previewScrollList" class="preview-scroll-list">
+                  <!-- Generated on load/update from names list -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-controls-row">
+            <button type="button" id="restartPreviewBtn" class="sec-btn" style="width: 100%;">Önizlemeyi Yeniden Başlat</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

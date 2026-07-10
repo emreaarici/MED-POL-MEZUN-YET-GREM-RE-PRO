@@ -1,0 +1,36 @@
+========================================================================
+             MEDIPOL MEZUNiYET ViDEOSU OLUSTURUCU (BOT)
+========================================================================
+
+Bu uygulama, Medipol Universitesi mezuniyet törenleri icin otomatik 
+video uretimini saglayan bir arayuz sunar.
+
+------------------------------------------------------------------------
+NASIL CALISTIRILIR?
+------------------------------------------------------------------------
+1. Klasorun icinde yer alan "Medipol Mezuniyet Videosu Olusturucu.exe"
+   dosyasina cift tiklayin.
+2. Arka planda siyah bir komut satiri penceresi acilacak ve ardindan
+   varsayilan web tarayicinizda video olusturma arayuzu (http://localhost:4000)
+   otomatik olarak yuklenecektir.
+
+------------------------------------------------------------------------
+NASIL KAPATILIR?
+------------------------------------------------------------------------
+* Uygulamayi kapatmak ve sunucuyu durdurmak icin arkada acilan 
+  siyah komut satiri (CMD) penceresini kapatmaniz yeterlidir.
+
+------------------------------------------------------------------------
+OLUSTURULAN ViDEOLAR NEREDE?
+------------------------------------------------------------------------
+* Urettiginiz videolar, bu klasorun hemen yaninda otomatik olarak 
+  olusturulacak olan "out" (veya "videolar") klasorunun icine 
+  kaydedilecektir.
+
+------------------------------------------------------------------------
+BASKA BiLGiSAYARLARDA CALISTIRMA
+------------------------------------------------------------------------
+* Bu klasoru bir USB bellek veya internet uzerinden baska bir Windows 
+  bilgisayara tamamen kopyalayarak dogrudan calistirabilirsiniz. 
+  Diger bilgisayara Node.js veya baska bir yazilim kurmaniz gerekmez.
+========================================================================

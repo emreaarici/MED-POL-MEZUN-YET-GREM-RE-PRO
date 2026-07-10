@@ -1,0 +1,9 @@
+node_modules/
+out/
+.remotion/
+package-lock.json
+src/names.json
+*.mp4
+*.webm
+.DS_Store
+Thumbs.db

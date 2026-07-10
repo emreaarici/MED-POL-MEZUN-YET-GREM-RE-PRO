@@ -1,0 +1,35 @@
+{
+  "name": "graduation-video-generator",
+  "version": "1.0.0",
+  "description": "Graduation video generator using Remotion",
+  "main": "main.js",
+  "scripts": {
+    "pre-render": "node pre-render.js",
+    "build": "npm run pre-render && remotion render src/index.ts Graduation out/graduation.mp4",
+    "build-nobg": "npm run pre-render && remotion render src/index.ts GraduationNoBg out/graduation_nobg.mp4",
+    "build-transparent": "npm run pre-render && remotion render src/index.ts GraduationNoBg out/graduation_nobg.webm --codec=vp9",
+    "start": "npm run pre-render && remotion preview src/index.ts",
+    "bot": "node server.js",
+    "package-app": "electron-packager . \"Medipol Video Bot\" --platform=win32 --arch=x64 --icon=icon.ico --overwrite --out=../build",
+    "package-mac-intel": "electron-packager . \"Medipol Video Bot\" --platform=darwin --arch=x64 --overwrite --out=../build",
+    "package-mac-silicon": "electron-packager . \"Medipol Video Bot\" --platform=darwin --arch=arm64 --overwrite --out=../build",
+    "package-mac-universal": "electron-packager . \"Medipol Video Bot\" --platform=darwin --arch=universal --overwrite --out=../build"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.120",
+    "@remotion/google-fonts": "^4.0.120",
+    "canvas": "^3.2.3",
+    "express": "^5.2.1",
+    "multer": "^2.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remotion": "^4.0.120"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "electron": "^42.5.0",
+    "electron-packager": "^17.1.2",
+    "typescript": "^5.0.4"
+  }
+}

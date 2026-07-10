@@ -1,0 +1,42 @@
+name: Build macOS Application
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Allows manual run button in GitHub Actions tab
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          cd system
+          npm install
+
+      - name: Package macOS Universal App
+        run: |
+          cd system
+          npm run package-mac-universal
+
+      - name: Zip macOS App Bundle
+        run: |
+          cd build/Medipol\ Video\ Bot-darwin-universal
+          zip -r ../../Medipol_Video_Bot_macOS.zip "Medipol Video Bot.app"
+
+      - name: Upload macOS Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Medipol_Video_Bot_macOS
+          path: Medipol_Video_Bot_macOS.zip

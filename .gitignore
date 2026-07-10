@@ -1,0 +1,31 @@
+# Dependency directories
+system/node_modules/
+node_modules/
+
+# Local Node binary
+system/node.exe
+
+# Build and output directories
+build/
+out/
+system/out/
+system/uploads/
+system/src/names.json
+system/src/lineCache.json
+
+# Temporary files and logs
+.remotion/
+.DS_Store
+Thumbs.db
+*.log
+
+# Video output formats
+*.mp4
+*.webm
+*.avi
+*.mov
+
+# Archives and build outputs
+*.zip
+*.tar.gz
+*.exe
