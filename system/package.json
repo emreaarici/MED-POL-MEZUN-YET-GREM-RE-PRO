@@ -18,7 +18,6 @@
   "dependencies": {
     "@remotion/cli": "^4.0.120",
     "@remotion/google-fonts": "^4.0.120",
-    "canvas": "^3.2.3",
     "express": "^5.2.1",
     "multer": "^2.2.0",
     "react": "^18.2.0",
