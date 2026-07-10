@@ -2,9 +2,12 @@ const fs = require('fs');
 const path = require('path');
 
 const projectDir = __dirname;
-const jsonPath = path.join(projectDir, 'src', 'names.json');
-const configPath = path.join(projectDir, 'src', 'config.json');
-const cachePath = path.join(projectDir, 'src', 'lineCache.json');
+const userDataPath = process.env.USER_DATA_PATH;
+
+const configPath = userDataPath ? path.join(userDataPath, 'config.json') : path.join(projectDir, 'src', 'config.json');
+const txtPath = userDataPath ? path.join(userDataPath, 'isimler.txt') : path.join(projectDir, 'isimler.txt');
+const jsonPath = userDataPath ? path.join(userDataPath, 'names.json') : path.join(projectDir, 'src', 'names.json');
+const cachePath = userDataPath ? path.join(userDataPath, 'lineCache.json') : path.join(projectDir, 'src', 'lineCache.json');
 
 try {
   // 1. Read config.json
@@ -15,9 +18,8 @@ try {
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   
   // 2. Read names from isimler.txt
-  const txtPath = path.join(projectDir, 'isimler.txt');
   if (!fs.existsSync(txtPath)) {
-    console.error('[Pre-Render] Error: isimler.txt not found!');
+    console.error('[Pre-Render] Error: isimler.txt not found! Path tried: ' + txtPath);
     process.exit(1);
   }
   const content = fs.readFileSync(txtPath, 'utf8');

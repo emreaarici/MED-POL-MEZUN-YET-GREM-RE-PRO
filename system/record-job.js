@@ -15,8 +15,19 @@ let config = null;
 let names = null;
 
 const projectDir = __dirname;
-const configPath = path.join(projectDir, 'src', 'config.json');
-const txtPath = path.join(projectDir, 'isimler.txt');
+
+// Dynamically resolve writable User Data directory
+let userDataPath = path.join(projectDir, 'data');
+try {
+  if (app && typeof app.getPath === 'function') {
+    userDataPath = app.getPath('userData');
+  }
+} catch (e) {
+  // Standalone node environment fallback
+}
+
+const configPath = path.join(userDataPath, 'config.json');
+const txtPath = path.join(userDataPath, 'isimler.txt');
 
 try {
   config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -36,7 +47,7 @@ const width = config.width || 1920;
 const height = config.height || 1080;
 
 // Read total list height from lineCache.json (written by pre-render.js)
-const cachePath = path.join(projectDir, 'src', 'lineCache.json');
+const cachePath = path.join(userDataPath, 'lineCache.json');
 let totalListHeight = names.length * nameHeight;
 if (fs.existsSync(cachePath)) {
   try {
@@ -109,7 +120,13 @@ function createWindow() {
     
     const fontFile = 'OptimaNovaLTProRegular.otf';
     const fontPath = url.pathToFileURL(path.join(projectDir, 'public', 'fonts', fontFile)).href;
-    const bgPath = url.pathToFileURL(path.join(projectDir, 'public', 'sablon.jpg')).href;
+    
+    // Check if a custom template exists in writable userDataPath, otherwise use default
+    let bgFilePath = path.join(userDataPath, 'sablon.jpg');
+    if (!fs.existsSync(bgFilePath)) {
+      bgFilePath = path.join(projectDir, 'public', 'sablon.jpg');
+    }
+    const bgPath = url.pathToFileURL(bgFilePath).href;
 
     const renderConfig = {
       bgPath: isTransparent ? null : bgPath,

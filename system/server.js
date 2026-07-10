@@ -22,10 +22,26 @@ const jobQueue = [];
 let isProcessing = false;
 let currentProcess = null; // Track running process
 
-// Ensure uploads folder exists
-const uploadsDir = path.join(__dirname, 'uploads');
+// Dynamically resolve writable User Data directory (cross-platform secure path)
+let userDataPath = path.join(__dirname, 'data');
+try {
+  const { app } = require('electron');
+  if (app && typeof app.getPath === 'function') {
+    userDataPath = app.getPath('userData');
+  }
+} catch (e) {
+  // Standalone node environment fallback
+}
+
+// Ensure userDataPath exists
+if (!fs.existsSync(userDataPath)) {
+  fs.mkdirSync(userDataPath, { recursive: true });
+}
+
+// Ensure uploads folder exists in writable user space
+const uploadsDir = path.join(userDataPath, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir);
+  fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
 // Serve UI
@@ -267,12 +283,12 @@ async function processNextJob() {
       fs.mkdirSync(absoluteOutDir, { recursive: true });
     }
 
-    // 2. Prepare files for this specific job
-    const namesPath = path.join(__dirname, 'isimler.txt');
+    // 2. Prepare files for this specific job (written to writable userDataPath)
+    const namesPath = path.join(userDataPath, 'isimler.txt');
     fs.writeFileSync(namesPath, job.namesList, 'utf8');
 
     // Prepare Config for Remotion
-    const configPath = path.join(__dirname, 'src', 'config.json');
+    const configPath = path.join(userDataPath, 'config.json');
     const configObj = { 
       names: job.namesList.split('\n').map(n => n.trim()).filter(n => n),
       fps: job.fps, 
@@ -297,7 +313,7 @@ async function processNextJob() {
     fs.writeFileSync(configPath, JSON.stringify(configObj, null, 2), 'utf8');
 
     // 3. Prepare Background Image
-    const targetBgPath = path.join(__dirname, 'public', 'sablon.jpg');
+    const targetBgPath = path.join(userDataPath, 'sablon.jpg');
     if (job.imagePath) {
       try {
         fs.copyFileSync(job.imagePath, targetBgPath);
@@ -398,7 +414,14 @@ function cleanupHeadlessProcesses() {
 
 function runCommand(cmd, args, onData) {
   return new Promise((resolve, reject) => {
-    const proc = spawn(cmd, args, { cwd: __dirname, shell: false });
+    const proc = spawn(cmd, args, { 
+      cwd: __dirname, 
+      shell: false,
+      env: { 
+        ...process.env, 
+        USER_DATA_PATH: userDataPath 
+      }
+    });
     currentProcess = proc;
     
     proc.stdout.on('data', d => onData(d.toString()));
