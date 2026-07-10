@@ -280,6 +280,12 @@ if (isRecordMode) {
       console.log('Server started successfully inside Electron main process.');
     } catch (err) {
       console.error('Failed to start server:', err);
+      try {
+        const { dialog } = require('electron');
+        dialog.showErrorBox('Sunucu Başlatılamadı (Server Error)', err.stack || err.message || String(err));
+      } catch (e) {
+        console.error('Failed to show error dialog:', e);
+      }
     }
   }
 
