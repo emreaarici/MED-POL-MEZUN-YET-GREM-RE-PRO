@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
+          - os: macos-latest
             arch: x64
             name: Intel
             script: package-mac-intel
