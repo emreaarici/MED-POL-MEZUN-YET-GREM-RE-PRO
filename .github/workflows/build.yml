@@ -25,14 +25,14 @@ jobs:
           cd system
           npm install
 
-      - name: Package macOS Universal App
+      - name: Package macOS Silicon App
         run: |
           cd system
-          npm run package-mac-universal
+          npm run package-mac-silicon
 
       - name: Zip macOS App Bundle
         run: |
-          cd build/Medipol\ Video\ Bot-darwin-universal
+          cd build/Medipol\ Video\ Bot-darwin-arm64
           zip -r ../../Medipol_Video_Bot_macOS.zip "Medipol Video Bot.app"
 
       - name: Upload macOS Build Artifact
