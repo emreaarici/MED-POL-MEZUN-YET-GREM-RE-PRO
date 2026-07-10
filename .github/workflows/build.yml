@@ -18,13 +18,13 @@ jobs:
             arch: x64
             name: Intel
             script: package-mac-intel
-            folder: Medipol Video Bot-darwin-x64
+            folder: "Medipol Video Bot-darwin-x64"
             artifact: Medipol_Video_Bot_macOS_Intel
           - os: macos-14
             arch: arm64
             name: Silicon
             script: package-mac-silicon
-            folder: Medipol Video Bot-darwin-arm64
+            folder: "Medipol Video Bot-darwin-arm64"
             artifact: Medipol_Video_Bot_macOS_Silicon
 
     steps:
@@ -48,7 +48,7 @@ jobs:
 
       - name: Zip macOS App Bundle
         run: |
-          cd build/${{ matrix.folder }}
+          cd "build/${{ matrix.folder }}"
           zip -r ../../${{ matrix.artifact }}.zip "Medipol Video Bot.app"
 
       - name: Upload macOS Build Artifact
