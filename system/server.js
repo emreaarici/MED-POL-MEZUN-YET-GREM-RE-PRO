@@ -33,6 +33,17 @@ try {
   // Standalone node environment fallback
 }
 
+// Dynamically resolve default output directory (e.g. Desktop/Medipol_Mezuniyet_Videolari)
+let defaultOutputDir = path.join(os.homedir(), 'Desktop', 'Medipol_Mezuniyet_Videolari');
+try {
+  const { app } = require('electron');
+  if (app && typeof app.getPath === 'function') {
+    defaultOutputDir = path.join(app.getPath('desktop'), 'Medipol_Mezuniyet_Videolari');
+  }
+} catch (e) {
+  // Standalone node environment fallback
+}
+
 // Ensure userDataPath exists
 if (!fs.existsSync(userDataPath)) {
   fs.mkdirSync(userDataPath, { recursive: true });
@@ -171,7 +182,7 @@ app.post('/api/generate', upload.single('background'), (req, res) => {
     height,
     maskTopPercent: parseInt(maskTopPercent) !== undefined ? parseInt(maskTopPercent) : 20,
     maskBottomPercent: parseInt(maskBottomPercent) !== undefined ? parseInt(maskBottomPercent) : 80,
-    outputDir: outputDir ? outputDir.trim() : 'out',
+    outputDir: (outputDir && outputDir.trim() !== 'out' && outputDir.trim() !== '') ? outputDir.trim() : defaultOutputDir,
     imagePath: req.file ? req.file.path : null,
     status: 'pending', // pending, processing, completed, error
     progress: 0,
@@ -328,33 +339,24 @@ async function processNextJob() {
     // Determine output file
     const safeDeptName = job.departmentName.replace(/[^a-zA-Z0-9 ıIğGüşŞöÖçÇ]/g, '').trim();
 
-    // Run Pre-render to populate names.json and lineCache.json
+    // Run Pre-render to populate names.json and lineCache.json (must run as pure Node.js process using ELECTRON_RUN_AS_NODE)
     renderEmitter.emit('log', `[Pre-render] çalıştırılıyor...`);
-    await runCommand(process.execPath, [path.join(__dirname, 'pre-render.js')], (data) => renderEmitter.emit('log', data));
+    await runCommand(
+      process.execPath, 
+      [path.join(__dirname, 'pre-render.js')], 
+      (data) => renderEmitter.emit('log', data),
+      { ELECTRON_RUN_AS_NODE: '1' }
+    );
 
     renderEmitter.emit('log', `[Pre-render] tamamlandı. Kayıt işlemi başlatılıyor...`);
 
-    // Determine path to Electron executable
-    // In packaged app: __dirname is inside resources/app/ → go up two levels to find the .exe
-    // In dev mode: use local electron binary
-    let electronPath = null;
+    // Determine path to Electron executable (cross-platform using the running process path)
+    let electronPath = process.execPath;
     let spawnArgs = ['--record'];
 
-    if (__dirname.includes('resources') || __dirname.includes('app.asar')) {
-      // Packaged: e.g. resources/app/server.js → ../../Medipol Video Bot.exe
-      electronPath = path.join(__dirname, '..', '..', 'Medipol Video Bot.exe');
-    } else {
-      // Dev mode: use bundled electron binary
-      const localElectron = path.join(__dirname, 'node_modules', 'electron', 'dist', 'electron.exe');
-      if (fs.existsSync(localElectron)) {
-        electronPath = localElectron;
-        // Dev electron needs the app path as first arg
-        spawnArgs = [__dirname, '--record'];
-      } else {
-        // Last resort fallback
-        electronPath = 'npx';
-        spawnArgs = ['electron', __dirname, '--record'];
-      }
+    // If running in dev mode, Electron needs the app path as the first argument
+    if (!__dirname.includes('resources') && !__dirname.includes('app.asar')) {
+      spawnArgs = [__dirname, '--record'];
     }
 
     console.log(`[server] Spawning Electron: ${electronPath} ${spawnArgs.join(' ')}`);
@@ -412,14 +414,15 @@ function cleanupHeadlessProcesses() {
   spawn('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', psScript], { shell: false });
 }
 
-function runCommand(cmd, args, onData) {
+function runCommand(cmd, args, onData, extraEnv = {}) {
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args, { 
       cwd: __dirname, 
       shell: false,
       env: { 
         ...process.env, 
-        USER_DATA_PATH: userDataPath 
+        USER_DATA_PATH: userDataPath,
+        ...extraEnv
       }
     });
     currentProcess = proc;

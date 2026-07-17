@@ -183,7 +183,7 @@ function processVideo(webmPath) {
   // Fall back to a sensible default if missing
   let outDir = config.outputDir;
   if (!outDir || !path.isAbsolute(outDir)) {
-    outDir = path.join(projectDir, '..', 'out');
+    outDir = path.join(app.getPath('desktop'), 'Medipol_Mezuniyet_Videolari');
     console.warn(`[Record Job] config.outputDir missing or relative — using fallback: ${outDir}`);
   }
     
